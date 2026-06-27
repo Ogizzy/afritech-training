@@ -1,26 +1,16 @@
 
 const APP = {
-  adminPassword: 'admin123',
   whatsapp: '2348020779363',
   whatsappGroup: 'https://chat.whatsapp.com/Fl7YooMkrDF9KQvqZBZuZH?s=cl&p=a&ilr=1',
   flutterwavePublicKey: 'FLWPUBK_TEST-xxxxxxxxxxxxxxxxxxxxx-X',
   amount: 150000
 };
 
+let candidatesData = [];
+let messagesData = [];
+
 function openWhatsApp(){ window.open(APP.whatsappGroup, '_blank'); }
 function openGroup(){ window.open(APP.whatsappGroup, '_blank'); }
-
-function getCandidates(){ return JSON.parse(localStorage.getItem('afdicCandidates') || '[]'); }
-function saveCandidates(data){ localStorage.setItem('afdicCandidates', JSON.stringify(data)); }
-function getMessages(){ return JSON.parse(localStorage.getItem('afdicMessages') || '[]'); }
-function saveMessages(data){ localStorage.setItem('afdicMessages', JSON.stringify(data)); }
-
-function nextTracking(){
-  const year = new Date().getFullYear();
-  const count = Number(localStorage.getItem('afdicSeq') || 0) + 1;
-  localStorage.setItem('afdicSeq', count);
-  return `AFDIC-${year}-${String(count).padStart(6, '0')}`;
-}
 
 function emailText(c){
   return `Dear ${c.fullName},
@@ -43,246 +33,341 @@ Thank you.
 Afri-Tech Team`;
 }
 
+async function api(endpoint, options = {}) {
+  const res = await fetch('backend/' + endpoint, {
+    credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json' },
+    ...options,
+    body: options.body ? JSON.stringify(options.body) : undefined
+  });
+  return res.json();
+}
+
+const hasSwal = typeof Swal !== 'undefined';
+const Toast = hasSwal ? Swal.mixin({
+  toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true
+}) : null;
+
+function toast(opts) {
+  if (Toast) Toast.fire(opts);
+  else alert(opts.title || '');
+}
+
+async function swalConfirm(opts) {
+  if (hasSwal) return Swal.fire(opts);
+  return { isConfirmed: confirm(opts.text || 'Are you sure?') };
+}
+
+function esc(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+function showReason(id) {
+  const c = candidatesData.find(x => x.id === id);
+  if (!c) return;
+  document.getElementById('reasonModalBody').textContent = c.reason;
+  new bootstrap.Modal(document.getElementById('reasonModal')).show();
+}
+
+function showMessage(id) {
+  const msg = messagesData.find(x => x.id === id);
+  if (!msg) return;
+  document.getElementById('messageModalTitle').textContent = 'Message: ' + msg.subject;
+  document.getElementById('messageModalBody').textContent = msg.message;
+  new bootstrap.Modal(document.getElementById('messageModal')).show();
+}
+
 const regForm = document.getElementById('regForm');
-if(regForm){
-  regForm.addEventListener('submit', e => {
+if (regForm) {
+  regForm.addEventListener('submit', async e => {
     e.preventDefault();
 
-    const candidates = getCandidates();
-    const email = document.getElementById('email').value.trim().toLowerCase();
-    const phone = document.getElementById('phone').value.trim().replace(/\s+/g, '');
-
-    if(candidates.some(c => String(c.email).toLowerCase() === email)){
-      alert('This email address has already been used for registration.');
-      return;
-    }
-
-    if(candidates.some(c => String(c.phone).replace(/\s+/g, '') === phone)){
-      alert('This phone number has already been used for registration.');
-      return;
-    }
-
-    const c = {
-      trackingNo: nextTracking(),
-      fullName: fullName.value.trim(),
-      email,
-      phone,
-      gender: gender.value,
-      country: country.value,
-      state: state.value,
-      education: education.value,
-      skill: skill.value,
-      laptop: laptop.value,
-      internet: internet.value,
-      reason: reason.value.trim(),
-      status: 'Pending',
-      paymentStatus: 'Not Paid',
-      date: new Date().toLocaleString()
+    const payload = {
+      fullName: document.getElementById('fullName').value.trim(),
+      email: document.getElementById('email').value.trim().toLowerCase(),
+      phone: document.getElementById('phone').value.trim().replace(/\s+/g, ''),
+      gender: document.getElementById('gender').value,
+      country: document.getElementById('country').value,
+      state: document.getElementById('state').value,
+      education: document.getElementById('education').value,
+      skill: document.getElementById('skill').value,
+      laptop: document.getElementById('laptop').value,
+      internet: document.getElementById('internet').value,
+      reason: document.getElementById('reason').value.trim()
     };
 
-    candidates.push(c);
-    saveCandidates(candidates);
+    const res = await api('register.php', { method: 'POST', body: payload });
 
-    if(document.getElementById('successMessage')){
-      document.getElementById('successMessage').innerHTML =
-        `<div class="alert alert-success">Registration submitted successfully. Your tracking number is <b>${c.trackingNo}</b>.</div><p>${emailText(c).replace(/\n/g, '<br>')}</p>`;
-      new bootstrap.Modal(document.getElementById('successModal')).show();
+    if (res.success) {
+      const c = { ...payload, trackingNo: res.trackingNo };
+      if (document.getElementById('successMessage')) {
+        document.getElementById('successMessage').innerHTML =
+          `<div class="alert alert-success">Registration submitted successfully. Your tracking number is <b>${c.trackingNo}</b>.</div><p>${emailText(c).replace(/\n/g, '<br>')}</p>`;
+        new bootstrap.Modal(document.getElementById('successModal')).show();
+      } else {
+        alert('Registration submitted successfully. Tracking Number: ' + c.trackingNo);
+      }
+      regForm.reset();
     } else {
-      alert('Registration submitted successfully. Tracking Number: ' + c.trackingNo);
+      alert(res.message || 'Registration failed');
     }
-
-    console.log('AUTO EMAIL MESSAGE:', emailText(c));
-    e.target.reset();
   });
 }
 
 const contactForm = document.getElementById('contactForm');
-if(contactForm){
-  contactForm.addEventListener('submit', e => {
+if (contactForm) {
+  contactForm.addEventListener('submit', async e => {
     e.preventDefault();
 
-    const msg = {
-      id: Date.now(),
-      name: contactName.value.trim(),
-      email: contactEmail.value.trim(),
-      subject: contactSubject.value.trim(),
-      message: contactMessage.value.trim(),
-      status: 'Unread',
-      date: new Date().toLocaleString()
+    const payload = {
+      name: document.getElementById('contactName').value.trim(),
+      email: document.getElementById('contactEmail').value.trim(),
+      subject: document.getElementById('contactSubject').value.trim(),
+      message: document.getElementById('contactMessage').value.trim()
     };
 
-    const messages = getMessages();
-    messages.unshift(msg);
-    saveMessages(messages);
+    const res = await api('contact.php', { method: 'POST', body: payload });
 
-    alert('Message sent successfully. Admin can view it on the dashboard.');
-    e.target.reset();
+    if (res.success) {
+      alert('Message sent successfully.');
+      contactForm.reset();
+    } else {
+      alert(res.message || 'Failed to send message');
+    }
   });
 }
 
-function loginAdmin(){
+async function loginAdmin() {
   const pass = document.getElementById('adminPass');
-  if(pass && pass.value === APP.adminPassword){
+  if (!pass) return;
+
+  const res = await api('admin.php?action=login', { method: 'POST', body: { password: pass.value } });
+
+  if (res.success) {
     document.getElementById('loginBox')?.classList.add('d-none');
     document.getElementById('dash')?.classList.remove('d-none');
-    renderCandidates();
-    renderMessages();
     pass.value = '';
+    await Promise.all([renderCandidates(), renderMessages()]);
   } else {
-    alert('Incorrect password');
+    toast({ icon: 'error', title: 'Incorrect password' });
   }
 }
 
-function logoutAdmin(){
+async function logoutAdmin() {
+  await api('admin.php?action=logout', { method: 'POST' });
   document.getElementById('dash')?.classList.add('d-none');
   document.getElementById('loginBox')?.classList.remove('d-none');
 }
 
-function renderCandidates(){
+async function renderCandidates() {
   const rows = document.getElementById('candidateRows');
-  if(!rows) return;
+  if (!rows) return;
+
+  const res = await api('admin.php?action=get_candidates');
+  if (!res.success) return;
+  candidatesData = res.data;
 
   const q = (document.getElementById('searchBox')?.value || '').toLowerCase();
   const fs = document.getElementById('filterStatus')?.value || '';
-  const all = getCandidates();
 
-  const data = all.filter(c =>
+  const data = candidatesData.filter(c =>
     (!fs || c.status === fs || c.paymentStatus === fs) &&
     Object.values(c).join(' ').toLowerCase().includes(q)
   );
 
   rows.innerHTML = data.map(c => {
-    const i = all.findIndex(x => x.trackingNo === c.trackingNo);
     const label = c.paymentStatus === 'Paid' ? 'Paid' : c.status;
-    const payBtn = c.status === 'Approved' ? `<button class="btn btn-sm btn-primary" onclick="makePayment(${i})">Pay</button>` : '';
+    const isApproved = c.status === 'Approved';
+    const approveBtn = !isApproved ? `<button class="btn btn-sm btn-success" onclick="setStatus(${c.id},'Approved')">Approve</button>` : '';
+    const payBtn = isApproved ? `<button class="btn btn-sm btn-primary" onclick="makePayment(${c.id})">Pay</button>` : '';
+    const longReason = c.reason.length > 10;
+    const shortReason = longReason ? esc(c.reason.substring(0, 10)) + '...' : esc(c.reason);
+    const reasonLink = longReason ? ` <a href="javascript:void(0)" onclick="showReason(${c.id})" class="text-decoration-none fw-bold">Read more</a>` : '';
     return `<tr>
-      <td><b>${c.trackingNo}</b></td>
-      <td>${c.fullName}</td>
-      <td>${c.email}</td>
-      <td>${c.phone}</td>
-      <td>${c.gender}</td>
-      <td>${c.country}</td>
-      <td>${c.state}</td>
-      <td>${c.education}</td>
-      <td>${c.skill}</td>
-      <td>${c.laptop}</td>
-      <td>${c.internet}</td>
-      <td>${c.reason}</td>
-      <td><span class="status ${label}">${label}</span></td>
-      <td>${c.date}</td>
+      <td><b>${esc(c.trackingNo)}</b></td>
+      <td>${esc(c.fullName)}</td>
+      <td>${esc(c.email)}</td>
+      <td>${esc(c.phone)}</td>
+      <td>${esc(c.gender)}</td>
+      <td>${esc(c.country)}</td>
+      <td>${esc(c.state)}</td>
+      <td>${esc(c.education)}</td>
+      <td>${esc(c.skill)}</td>
+      <td>${esc(c.laptop)}</td>
+      <td>${esc(c.internet)}</td>
+      <td>${shortReason}${reasonLink}</td>
+      <td><span class="status ${label}">${esc(label)}</span></td>
+      <td>${esc(c.date)}</td>
       <td class="admin-actions">
-        <button class="btn btn-sm btn-success" onclick="setStatus(${i},'Approved')">Approve</button>
-        <button class="btn btn-sm btn-danger" onclick="setStatus(${i},'Rejected')">Reject</button>
+        ${approveBtn}
+        <button class="btn btn-sm btn-danger" onclick="setStatus(${c.id},'Rejected')">Reject</button>
         ${payBtn}
-        <button class="btn btn-sm btn-outline-danger" onclick="deleteCandidate(${i})">Delete</button>
+        <button class="btn btn-sm btn-outline-danger" onclick="deleteCandidate(${c.id})">Delete</button>
       </td>
     </tr>`;
   }).join('') || `<tr><td colspan="15" class="text-center py-4">No registered candidate found</td></tr>`;
 
+  updateStats();
+}
+
+async function updateStats() {
   const total = document.getElementById('statTotal');
   const approved = document.getElementById('statApproved');
   const rejected = document.getElementById('statRejected');
   const paid = document.getElementById('statPaid');
-  if(total) total.textContent = all.length;
-  if(approved) approved.textContent = all.filter(c => c.status === 'Approved').length;
-  if(rejected) rejected.textContent = all.filter(c => c.status === 'Rejected').length;
-  if(paid) paid.textContent = all.filter(c => c.paymentStatus === 'Paid').length;
+  if (total) total.textContent = candidatesData.length;
+  if (approved) approved.textContent = candidatesData.filter(c => c.status === 'Approved').length;
+  if (rejected) rejected.textContent = candidatesData.filter(c => c.status === 'Rejected').length;
+  if (paid) paid.textContent = candidatesData.filter(c => c.paymentStatus === 'Paid').length;
 }
 
-function setStatus(i, status){
-  const data = getCandidates();
-  if(data[i]){
-    data[i].status = status;
-    saveCandidates(data);
-    renderCandidates();
+async function setStatus(id, status) {
+  const label = status === 'Approved' ? 'approve' : 'reject';
+  const icon = status === 'Approved' ? 'question' : 'warning';
+  const color = status === 'Approved' ? '#28a745' : '#dc3545';
+  const result = await swalConfirm({
+    title: `Are you sure?`,
+    text: `You are about to ${label} this candidate.`,
+    icon, showCancelButton: true, confirmButtonColor: color, confirmButtonText: `Yes, ${label}!`
+  });
+  if (!result.isConfirmed) return;
+  const res = await api('admin.php?action=update_status', { method: 'POST', body: { id, status } });
+  if (res.success) {
+    await renderCandidates();
+    toast({ icon: 'success', title: `Candidate ${label}d` });
   }
 }
 
-function deleteCandidate(i){
-  if(confirm('Delete this candidate?')){
-    const data = getCandidates();
-    data.splice(i, 1);
-    saveCandidates(data);
-    renderCandidates();
+async function deleteCandidate(id) {
+  const result = await swalConfirm({
+    title: 'Delete candidate?',
+    text: 'This action cannot be undone.',
+    icon: 'error', showCancelButton: true, confirmButtonColor: '#dc3545', confirmButtonText: 'Yes, delete!'
+  });
+  if (!result.isConfirmed) return;
+  const res = await api('admin.php?action=delete_candidate', { method: 'POST', body: { id } });
+  if (res.success) {
+    await renderCandidates();
+    toast({ icon: 'success', title: 'Candidate deleted' });
   }
 }
 
-function clearAll(){
-  if(confirm('Clear all candidate data?')){
-    localStorage.removeItem('afdicCandidates');
-    renderCandidates();
+async function clearAll() {
+  const result = await swalConfirm({
+    title: 'Clear all candidates?',
+    text: 'This will permanently delete all candidate records.',
+    icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc3545', confirmButtonText: 'Yes, clear all!'
+  });
+  if (!result.isConfirmed) return;
+  const res = await api('admin.php?action=clear_candidates', { method: 'POST' });
+  if (res.success) {
+    await renderCandidates();
+    toast({ icon: 'success', title: 'All candidates cleared' });
   }
 }
 
-function renderMessages(){
+async function renderMessages() {
   const rows = document.getElementById('messageRows');
-  if(!rows) return;
+  if (!rows) return;
 
-  const messages = getMessages();
+  const res = await api('admin.php?action=get_messages');
+  if (!res.success) return;
+  messagesData = res.data;
 
-  rows.innerHTML = messages.map((msg, i) => `
-    <tr>
-      <td><span class="status ${msg.status}">${msg.status}</span></td>
-      <td>${msg.name}</td>
-      <td>${msg.email}</td>
-      <td>${msg.subject}</td>
-      <td>${msg.message}</td>
-      <td>${msg.date}</td>
+  rows.innerHTML = messagesData.map(msg => {
+    const longMsg = msg.message.length > 10;
+    const shortMsg = longMsg ? esc(msg.message.substring(0, 10)) + '...' : esc(msg.message);
+    const msgLink = longMsg ? ` <a href="javascript:void(0)" onclick="showMessage(${msg.id})" class="text-decoration-none fw-bold">Read more</a>` : '';
+    return `<tr>
+      <td><span class="status ${esc(msg.status)}">${esc(msg.status)}</span></td>
+      <td>${esc(msg.name)}</td>
+      <td>${esc(msg.email)}</td>
+      <td>${esc(msg.subject)}</td>
+      <td>${shortMsg}${msgLink}</td>
+      <td>${esc(msg.date)}</td>
       <td>
-        <button class="btn btn-sm btn-success" onclick="markMessageRead(${i})">Mark Read</button>
-        <button class="btn btn-sm btn-outline-danger" onclick="deleteMessage(${i})">Delete</button>
+        <button class="btn btn-sm btn-success" onclick="markMessageRead(${msg.id})">Mark Read</button>
+        <button class="btn btn-sm btn-outline-danger" onclick="deleteMessage(${msg.id})">Delete</button>
       </td>
-    </tr>
-  `).join('') || `<tr><td colspan="7" class="text-center py-4">No contact message found</td></tr>`;
-
-  const statMessages = document.getElementById('statMessages');
-  if(statMessages) statMessages.textContent = messages.length;
+    </tr>`;
+  }).join('') || `<tr><td colspan="7" class="text-center py-4">No contact message found</td></tr>`;
 }
 
-function markMessageRead(i){
-  const messages = getMessages();
-  if(messages[i]){
-    messages[i].status = 'Read';
-    saveMessages(messages);
-    renderMessages();
+async function markMessageRead(id) {
+  const res = await api('admin.php?action=mark_read', { method: 'POST', body: { id } });
+  if (res.success) {
+    await renderMessages();
+    toast({ icon: 'success', title: 'Message marked as read' });
   }
 }
 
-function deleteMessage(i){
-  if(confirm('Delete this message?')){
-    const messages = getMessages();
-    messages.splice(i, 1);
-    saveMessages(messages);
-    renderMessages();
+async function deleteMessage(id) {
+  const result = await swalConfirm({
+    title: 'Delete message?',
+    text: 'This action cannot be undone.',
+    icon: 'error', showCancelButton: true, confirmButtonColor: '#dc3545', confirmButtonText: 'Yes, delete!'
+  });
+  if (!result.isConfirmed) return;
+  const res = await api('admin.php?action=delete_message', { method: 'POST', body: { id } });
+  if (res.success) {
+    await renderMessages();
+    toast({ icon: 'success', title: 'Message deleted' });
   }
 }
 
-function clearMessages(){
-  if(confirm('Clear all messages?')){
-    localStorage.removeItem('afdicMessages');
-    renderMessages();
+async function clearMessages() {
+  const result = await swalConfirm({
+    title: 'Clear all messages?',
+    text: 'This will permanently delete all contact messages.',
+    icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc3545', confirmButtonText: 'Yes, clear all!'
+  });
+  if (!result.isConfirmed) return;
+  const res = await api('admin.php?action=clear_messages', { method: 'POST' });
+  if (res.success) {
+    await renderMessages();
+    toast({ icon: 'success', title: 'All messages cleared' });
   }
 }
 
-function exportExcel(){
-  const data = getCandidates();
+function exportExcel() {
+  const data = candidatesData;
+  if (!data.length) { toast({ icon: 'warning', title: 'No data to export' }); return; }
   const ws = XLSX.utils.json_to_sheet(data);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Candidates');
   XLSX.writeFile(wb, 'AFDIC_AI_Training_Candidates.xlsx');
 }
 
-function makePayment(i){
-  const data = getCandidates();
-  const c = data[i];
+function exportPDF() {
+  const data = candidatesData;
+  if (!data.length) { toast({ icon: 'warning', title: 'No data to export' }); return; }
+  if (typeof jspdf === 'undefined' && typeof window.jspdf === 'undefined') {
+    alert('PDF library not loaded');
+    return;
+  }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  doc.text('AFDIC AI Training - Candidates', 14, 15);
+  doc.autoTable({
+    startY: 22,
+    head: [['Tracking No', 'Name', 'Email', 'Phone', 'Status', 'Payment']],
+    body: data.map(c => [c.trackingNo, c.fullName, c.email, c.phone, c.status, c.paymentStatus]),
+    styles: { fontSize: 8 }
+  });
+  doc.save('AFDIC_AI_Training_Candidates.pdf');
+}
 
-  if(!c || c.status !== 'Approved'){
-    alert('Candidate must be approved after orientation before payment.');
+async function makePayment(id) {
+  const c = candidatesData.find(x => x.id === id);
+  if (!c || c.status !== 'Approved') {
+    toast({ icon: 'warning', title: 'Candidate must be approved before payment.' });
     return;
   }
 
-  if(!window.FlutterwaveCheckout){
-    alert('Flutterwave script not loaded. Check internet connection.');
+  if (!window.FlutterwaveCheckout) {
+    toast({ icon: 'error', title: 'Flutterwave script not loaded.' });
     return;
   }
 
@@ -294,13 +379,14 @@ function makePayment(i){
     payment_options: 'card,banktransfer,ussd',
     customer: { email: c.email, phone_number: c.phone, name: c.fullName },
     customizations: { title: 'Afri-Tech AI Training', description: 'AI Training Payment', logo: 'assets/images/logo.jpg' },
-    callback: function(response){
-      if(response.status === 'successful' || response.status === 'completed'){
-        data[i].paymentStatus = 'Paid';
-        data[i].paymentRef = response.transaction_id || response.tx_ref;
-        saveCandidates(data);
-        renderCandidates();
-        alert('Payment successful and candidate marked as paid.');
+    callback: async function(response){
+      if (response.status === 'successful' || response.status === 'completed') {
+        await api('admin.php?action=update_payment', {
+          method: 'POST',
+          body: { id, paymentStatus: 'Paid', paymentRef: response.transaction_id || response.tx_ref }
+        });
+        await renderCandidates();
+        toast({ icon: 'success', title: 'Payment successful!' });
       }
     }
   });
@@ -310,7 +396,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.feature-card,.benefit-tile,.cardx,.contact-box,.contact-info-card,.contact-form-card,.stat').forEach(el => el.classList.add('reveal'));
   const observer = new IntersectionObserver(entries => {
     entries.forEach(entry => {
-      if(entry.isIntersecting){
+      if (entry.isIntersecting) {
         entry.target.classList.add('show');
         observer.unobserve(entry.target);
       }
