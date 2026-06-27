@@ -143,7 +143,7 @@ async function loginAdmin() {
   const pass = document.getElementById('adminPass');
   if (!pass) return;
 
-  const res = await api('admin.php?action=login', { method: 'POST', body: { password: pass.value } });
+  const res = await api('admin.php?action=login', { method: 'POST', body: { username: document.getElementById('adminUser').value, password: pass.value } });
 
   if (res.success) {
     document.getElementById('loginBox')?.classList.add('d-none');

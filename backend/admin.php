@@ -3,8 +3,6 @@ header('Content-Type: application/json');
 session_start();
 require_once __DIR__ . '/db.php';
 
-define('ADMIN_PASSWORD', 'admin123');
-
 function requireAuth() {
     if (empty($_SESSION['admin_logged_in'])) {
         http_response_code(401);
@@ -41,14 +39,36 @@ switch ($action) {
 
     case 'login':
         $data = json_decode(file_get_contents('php://input'), true);
-        $pass = $data['password'] ?? '';
-        if ($pass === ADMIN_PASSWORD) {
+        $username = $conn->real_escape_string($data['username'] ?? '');
+        $password = $data['password'] ?? '';
+        $result = $conn->query("SELECT * FROM admin_users WHERE username = '$username'");
+        $user = $result ? $result->fetch_assoc() : null;
+        if ($user && password_verify($password, $user['password_hash'])) {
             $_SESSION['admin_logged_in'] = true;
+            $_SESSION['admin_username'] = $user['username'];
             echo json_encode(['success' => true, 'message' => 'Login successful']);
         } else {
             http_response_code(403);
-            echo json_encode(['success' => false, 'message' => 'Incorrect password']);
+            echo json_encode(['success' => false, 'message' => 'Invalid username or password']);
         }
+        break;
+
+    case 'change_password':
+        requireAuth();
+        $data = json_decode(file_get_contents('php://input'), true);
+        $username = $conn->real_escape_string($_SESSION['admin_username']);
+        $current  = $data['current_password'] ?? '';
+        $new      = $data['new_password'] ?? '';
+        $result = $conn->query("SELECT * FROM admin_users WHERE username = '$username'");
+        $user = $result ? $result->fetch_assoc() : null;
+        if (!$user || !password_verify($current, $user['password_hash'])) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'message' => 'Current password is incorrect']);
+            break;
+        }
+        $hash = password_hash($new, PASSWORD_BCRYPT);
+        $conn->query("UPDATE admin_users SET password_hash = '$hash' WHERE id = {$user['id']}");
+        echo json_encode(['success' => true, 'message' => 'Password changed successfully']);
         break;
 
     case 'logout':
