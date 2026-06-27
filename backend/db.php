@@ -1,7 +1,7 @@
 <?php
 $host = 'localhost';
-$db   = 'afritech_training';
-$user = 'root';
+$db   = 'afdic_training';
+$user = 'afdic_training';
 $pass = '';
 $conn = new mysqli($host, $user, $pass, $db);
 if ($conn->connect_error) {
