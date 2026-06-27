@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AFDIC / Afri-Tech AI Training</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="shortcut icon" href="assets/images/logo.jpg" type="image/x-icon">
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+                <img class="logo" src="assets/images/logo.jpg" alt="AFDIC Logo">
+                <div>
+                    <div class="brand-title">Afri-Tech</div><small class="small-muted">Africa Digital Infrastructure Company</small>
+                </div>
+            </a>
+            <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav"><span
+                    class="navbar-toggler-icon"></span></button>
+            <div class="collapse navbar-collapse" id="nav">
+                <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="register.html">Register</a></li>
+                    <li class="nav-item"><a class="nav-link" href="contact.html">Contact Us</a></li>
+
+                </ul>
+            </div>
+        </div>
+    </nav>
+  <section class="contact-hero">
+    <div class="contact-overlay"></div>
+
+    <div class="container contact-hero-content">
+        <div class="row align-items-center">
+
+            <!-- Left Content -->
+            <div class="col-lg-6">
+
+                <span class="contact-badge">
+                    <i class="bi bi-chat-dots-fill"></i>
+                    REGISTER FIRST
+                </span>
+
+                <h2>
+                    Register
+                    <span>Join Our WhatsApp Group For Orientation</span>
+                    Before making Payment
+                </h2>
+
+                <!-- <p>
+                    Send us a message, call us, or chat directly on WhatsApp
+                    for registration, orientation support and training enquiries.
+                </p> -->
+
+                <div class="hero-buttons">
+                    <a href="register.html" class="btn-main">
+                        Register Now
+                    </a>
+
+                    <button onclick="openWhatsApp()" class="btn-outline-main">
+                        <i class="bi bi-whatsapp"></i>
+                        WhatsApp
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Right Image -->
+            <div class="col-lg-6 text-center">
+
+                <img src="assets/images/hero-6.png"
+                     class="hero-contact-image img-fluid"
+                     alt="Afri-Tech Support">
+
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<main class="reg-main">
+  <div class="container">
+    <div class="row g-4 align-items-stretch">
+
+      <div class="col-lg-5">
+        <div class="reg-info animate-up">
+          <img src="assets/images/logo.jpg" class="reg-logo" alt="AFDIC Logo">
+
+          <h3>Afri-Tech AI Training</h3>
+          <p>Practical AI and coding training for African young developers, students and tech enthusiasts.</p>
+
+          <div class="reg-info-item">
+            <i class="bi bi-calendar-event"></i>
+            <span>1st – 30th August 2026</span>
+          </div>
+
+          <div class="reg-info-item">
+            <i class="bi bi-cash-coin"></i>
+            <span>Investment: ₦150,000</span>
+          </div>
+
+          <div class="reg-info-item">
+            <i class="bi bi-whatsapp"></i>
+            <span>Orientation before payment</span>
+          </div>
+
+          <div class="reg-info-item">
+            <i class="bi bi-award"></i>
+            <span>Certificate and real projects included</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-7">
+        <div class="reg-card animate-up">
+          <h2>Registration Form</h2>
+          <p class="small-muted">All fields are required.</p>
+
+          <form id="regForm" class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Full Name</label>
+              <input required id="fullName" class="form-control" placeholder="Enter full name">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Email Address</label>
+              <input required type="email" id="email" class="form-control" placeholder="name@email.com">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Phone Number</label>
+              <input required id="phone" class="form-control" placeholder="08012345678">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Gender</label>
+              <select required id="gender" class="form-select">
+                <option value="">Select gender</option>
+                <option>Male</option>
+                <option>Female</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Country</label>
+              <input required id="country" class="form-control" value="Nigeria">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">State</label>
+              <input required id="state" class="form-control" placeholder="Enter state">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Education Level</label>
+              <select required id="education" class="form-select">
+                <option value="">Select education level</option>
+                <option>Secondary School</option>
+                <option>Diploma/NCE</option>
+                <option>Undergraduate</option>
+                <option>Graduate</option>
+                <option>Other</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">AI/Coding Skill Level</label>
+              <select required id="skill" class="form-select">
+                <option value="">Select skill level</option>
+                <option>Beginner</option>
+                <option>Intermediate</option>
+                <option>Advanced</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Do you have a laptop?</label>
+              <select required id="laptop" class="form-select">
+                <option value="">Select option</option>
+                <option>Yes</option>
+                <option>No</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Do you have internet access?</label>
+              <select required id="internet" class="form-select">
+                <option value="">Select option</option>
+                <option>Yes</option>
+                <option>No</option>
+              </select>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Why do you want to join this training?</label>
+              <textarea required id="reason" rows="4" class="form-control" placeholder="Write your reason here..."></textarea>
+            </div>
+
+            <div class="col-12">
+              <button class="reg-submit" type="submit">
+                Submit Registration <i class="bi bi-arrow-right"></i>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+    </main>
+    <div class="modal fade" id="successModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content p-3">
+                <div class="modal-header border-0">
+                    <h4 class="modal-title fw-bold text-success">Registration Successful!</h4><button class="btn-close"
+                        data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="successMessage"></div>
+                <div class="modal-footer border-0">
+                    <button class="btn-main" onclick="openGroup()"><i class="bi bi-whatsapp"></i> Join WhatsApp
+                        Orientation Group</button>
+                    <button class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="footer">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <h5 class="fw-bold">Afri-Tech AI Training</h5>
+                    <p>Empowering African youths with AI, coding, machine learning and practical technology skills.</p>
+                </div>
+                <div class="col-md-4">
+                    <h5 class="fw-bold">Contact Details</h5>
+                    <p><i class="bi bi-envelope"></i> info@afri-tech.org</p>
+                    <p><i class="bi bi-telephone"></i>+2348038149323</p>
+                    <p><i class="bi bi-whatsapp"></i> WhatsApp: +2348020779363</p>
+                    <p><i class="bi bi-geo-alt"></i> Nigeria</p>
+                </div>
+                <div class="col-md-4">
+                    <h5 class="fw-bold">Social Media</h5>
+                    <div class="social">
+                        <a href="https://web.facebook.com/Africadic" target="_blank" aria-label="Facebook"><i
+                                class="bi bi-facebook"></i></a>
+                        <!-- <a href="https://instagram.com" target="_blank" aria-label="Instagram"><i
+                                class="bi bi-instagram"></i></a>
+                        <a href="https://x.com" target="_blank" aria-label="X"><i class="bi bi-twitter-x"></i></a>
+                        <a href="https://linkedin.com" target="_blank" aria-label="LinkedIn"><i
+                                class="bi bi-linkedin"></i></a>
+                        <a href="https://youtube.com" target="_blank" aria-label="YouTube"><i
+                                class="bi bi-youtube"></i></a> -->
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <p class="text-center mb-0">© 2026 AFDIC / Afri-Tech. All Rights Reserved.</p>
+        </div>
+    </footer>
+   <a class="whatsapp"
+   href="https://chat.whatsapp.com/Fl7YooMkrDF9KQvqZBZuZH?s=cl&p=a&ilr=1"
+   target="_blank"
+   rel="noopener noreferrer"
+   title="Join WhatsApp Orientation Group">
+    <i class="bi bi-whatsapp"></i>
+</a>
+     <a class="whatsapp" href="https://chat.whatsapp.com/Fl7YooMkrDF9KQvqZBZuZH?s=cl&p=a&ilr=1" target="_blank" rel="noopener"><i class="bi bi-whatsapp"></i></a>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/app.js"></script>
+</body>
+</html>

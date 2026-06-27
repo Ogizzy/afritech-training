@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="950" viewBox="0 0 1600 950">
+<rect width="1600" height="950" fill="#f5f8fb"/>
+<circle cx="1180" cy="330" r="220" fill="#047832" opacity=".18"/>
+<circle cx="1230" cy="540" r="270" fill="#061d59" opacity=".18"/>
+<text x="100" y="230" font-family="Arial" font-size="72" font-weight="900" fill="#061d59">AFRICA DIGITAL FUTURE</text>
+<text x="100" y="330" font-family="Arial" font-size="48" font-weight="900" fill="#047832">Practical AI + Coding Experience</text>
+<text x="100" y="420" font-family="Arial" font-size="32" fill="#172033">Registration → Orientation → Approval → Payment</text>
+<g transform="translate(920 250)"><rect width="440" height="300" rx="28" fill="#061d59"/><rect x="35" y="42" width="360" height="28" rx="10" fill="#047832"/><rect x="35" y="105" width="290" height="20" rx="8" fill="#fff" opacity=".80"/><rect x="35" y="155" width="340" height="20" rx="8" fill="#fff" opacity=".60"/><rect x="35" y="205" width="240" height="20" rx="8" fill="#fff" opacity=".45"/></g>
+</svg>

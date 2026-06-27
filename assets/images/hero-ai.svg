@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="950" viewBox="0 0 1600 950">
+<defs><linearGradient id="a" x1="0" x2="1"><stop stop-color="#061d59"/><stop offset="1" stop-color="#047832"/></linearGradient></defs>
+<rect width="1600" height="950" fill="url(#a)"/>
+<circle cx="1150" cy="430" r="230" fill="none" stroke="#7ee6ff" stroke-width="8" opacity=".8"/>
+<circle cx="1150" cy="430" r="125" fill="none" stroke="#ffffff" stroke-width="5" opacity=".5"/>
+<text x="110" y="220" font-family="Arial" font-size="76" font-weight="900" fill="#ffffff">ONLINE AI TRAINING</text>
+<text x="110" y="325" font-family="Arial" font-size="62" font-weight="900" fill="#aaffcb">WITH CODING</text>
+<text x="110" y="405" font-family="Arial" font-size="34" fill="#ffffff">Build AI Skills for Africa's Digital Future</text>
+<text x="1020" y="500" font-family="Arial" font-size="190" font-weight="900" fill="#ffffff">AI</text>
+<path d="M980 610h410v100H980z" rx="22" fill="#ffffff22" stroke="#fff"/>
+<text x="1018" y="672" font-family="monospace" font-size="28" fill="#fff">Python • ML • Projects</text>
+</svg>
